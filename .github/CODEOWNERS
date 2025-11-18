@@ -1,0 +1,16 @@
+# Code Owners
+# Users mentioned here will be automatically requested for review when
+# someone opens a pull request that modifies code that they own.
+
+# Default owners for everything in the repo
+* @krisarmstrong
+
+# Documentation
+*.md @krisarmstrong
+/docs/ @krisarmstrong
+
+# GitHub configuration
+/.github/ @krisarmstrong
+
+# Core script
+/bootstrap.sh @krisarmstrong

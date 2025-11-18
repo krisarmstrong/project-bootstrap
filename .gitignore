@@ -1,0 +1,21 @@
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDEs
+.vscode/
+.idea/
+*.sublime-*
+
+# Testing
+test-*/
+*.test
+
+# Logs
+*.log
+
+# Temporary files
+/tmp/
+*.tmp

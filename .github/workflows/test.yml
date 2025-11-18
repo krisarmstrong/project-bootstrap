@@ -1,0 +1,100 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-basic:
+    name: Test Basic Functionality
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test script help
+        run: ./bootstrap.sh --help
+
+      - name: Test Python bootstrap
+        run: |
+          ./bootstrap.sh python test-python
+          cd test-python
+          test -f README.md
+          test -f pyproject.toml
+          test -f .gitignore
+          test -d src
+          test -d tests
+          cd ..
+          rm -rf test-python
+
+      - name: Test Go bootstrap
+        run: |
+          ./bootstrap.sh go test-go
+          cd test-go
+          test -f README.md
+          test -f go.mod
+          test -f .gitignore
+          test -d cmd
+          cd ..
+          rm -rf test-go
+
+      - name: Test with Docker flag
+        run: |
+          ./bootstrap.sh python test-docker --docker
+          cd test-docker
+          test -f Dockerfile
+          test -f docker-compose.yml
+          test -f .dockerignore
+          cd ..
+          rm -rf test-docker
+
+  test-git-hooks:
+    name: Test Git Hooks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Test Conventional Commits hook
+        run: |
+          ./bootstrap.sh python test-hooks
+          cd test-hooks
+
+          # Configure git
+          git config user.email "test@example.com"
+          git config user.name "Test User"
+
+          # Test valid commit
+          echo "test" > test.txt
+          git add test.txt
+          git commit -m "feat: test feature" || exit 1
+
+          # Test invalid commit (should fail)
+          echo "test2" > test2.txt
+          git add test2.txt
+          if git commit -m "invalid message"; then
+            echo "ERROR: Invalid commit should have been rejected"
+            exit 1
+          fi
+
+          cd ..
+          rm -rf test-hooks
+
+  markdown-lint:
+    name: Markdown Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lint Markdown files
+        uses: nosborn/github-action-markdown-cli@v3.3.0
+        with:
+          files: .
+          config_file: .markdownlint.json
+          ignore_files: node_modules
