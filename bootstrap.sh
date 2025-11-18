@@ -1415,10 +1415,35 @@ main() {
 
     # Language-specific setup
     case "$LANGUAGE" in
-        python) setup_python ;;
+        ada) setup_ada ;;
+        assembly) setup_assembly ;;
+        bash) setup_bash ;;
+        basic) setup_basic ;;
+        c) setup_c ;;
+        cobol) setup_cobol ;;
+        cpp) setup_cpp ;;
+        csharp) setup_csharp ;;
+        dart) setup_dart ;;
         elixir) setup_elixir ;;
+        fortran) setup_fortran ;;
+        go) setup_go ;;
+        java) setup_java ;;
+        julia) setup_julia ;;
+        kotlin) setup_kotlin ;;
+        lua) setup_lua ;;
+        nim) setup_nim ;;
+        node) setup_node ;;
+        pascal) setup_pascal ;;
+        perl) setup_perl ;;
+        php) setup_php ;;
+        python) setup_python ;;
+        r) setup_r ;;
+        ruby) setup_ruby ;;
+        rust) setup_rust ;;
         solidity) setup_solidity ;;
-        # ... add other languages
+        swift) setup_swift ;;
+        vlang) setup_vlang ;;
+        zig) setup_zig ;;
         *) log_error "Language '$LANGUAGE' not yet implemented"; exit 1 ;;
     esac
 
@@ -1451,3 +1476,1050 @@ main() {
 }
 
 main "$@"
+setup_rust() {
+    log_section "🦀 Rust Setup"
+
+    # Create with cargo
+    if command -v cargo &> /dev/null; then
+        cargo init --name "${PROJECT_NAME//-/_}"
+    else
+        log_warning "cargo not found, creating manual structure"
+        mkdir -p src
+        cat > src/main.rs << 'EOF'
+fn main() {
+    println!("Hello from Rust!");
+}
+setup_java() {
+    log_section "☕ Java Setup"
+
+    # Detect build tool preference
+    local BUILD_TOOL="maven"
+    if command -v gradle &> /dev/null; then
+        BUILD_TOOL="gradle"
+    fi
+
+    mkdir -p src/{main,test}/java/com/example/${PROJECT_NAME//-/_}
+    mkdir -p src/main/resources
+
+    # Main class
+    cat > "src/main/java/com/example/${PROJECT_NAME//-/_}/Main.java" << 'EOF'
+package com.example.PROJECT_NAME;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Hello from Java!");
+    }
+}
+setup_c() {
+    log_section "⚡ C Setup"
+
+    mkdir -p src include tests build
+
+    # Main source
+    cat > src/main.c << 'EOF'
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[]) {
+    printf("Hello from C!\n");
+    return EXIT_SUCCESS;
+}
+setup_cpp() {
+    log_section "⚡ C++ Setup"
+
+    mkdir -p src include tests build
+
+    # Main source
+    cat > src/main.cpp << 'EOF'
+#include <iostream>
+#include <memory>
+
+int main(int argc, char* argv[]) {
+    std::cout << "Hello from C++!" << std::endl;
+    return 0;
+}
+setup_assembly() {
+    log_section "⚙️  Assembly Setup"
+
+    mkdir -p src
+
+    # Main assembly file (NASM syntax, x86-64)
+    cat > src/main.asm << 'EOF'
+; Hello World in x86-64 Assembly (Linux)
+section .data
+    msg db "Hello from Assembly!", 10
+    len equ $ - msg
+
+section .text
+    global _start
+
+_start:
+    ; Write to stdout
+    mov rax, 1          ; sys_write
+    mov rdi, 1          ; stdout
+    mov rsi, msg
+    mov rdx, len
+    syscall
+
+    ; Exit
+    mov rax, 60         ; sys_exit
+    xor rdi, rdi        ; return 0
+    syscall
+EOF
+
+    # Makefile
+    cat > Makefile << 'EOF'
+AS = nasm
+ASFLAGS = -f elf64
+LD = ld
+LDFLAGS =
+
+SRC = src/main.asm
+OBJ = $(SRC:.asm=.o)
+BIN = program
+
+.PHONY: all build clean
+
+all: build
+
+build: $(BIN)
+
+$(BIN): $(OBJ)
+	$(LD) $(LDFLAGS) -o $@ $^
+
+%.o: %.asm
+	$(AS) $(ASFLAGS) -o $@ $<
+
+clean:
+	rm -f $(OBJ) $(BIN)
+EOF
+
+    log_success "Created Assembly project structure"
+}
+setup_cobol() {
+    log_section "📊 COBOL Setup"
+
+    mkdir -p src
+
+    # Main COBOL program
+    cat > src/MAIN.cob << 'EOF'
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. HELLO-WORLD.
+       AUTHOR. YOUR-NAME.
+
+       ENVIRONMENT DIVISION.
+       
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-MESSAGE PIC X(30) VALUE "Hello from COBOL!".
+
+       PROCEDURE DIVISION.
+       MAIN-LOGIC.
+           DISPLAY WS-MESSAGE.
+           STOP RUN.
+EOF
+
+    # Makefile
+    cat > Makefile << 'EOF'
+COBC = cobc
+COBCFLAGS = -x -free -Wall
+
+SRC = src/MAIN.cob
+BIN = program
+
+.PHONY: all build clean test
+
+all: build
+
+build: $(BIN)
+
+$(BIN): $(SRC)
+	$(COBC) $(COBCFLAGS) -o $@ $<
+
+clean:
+	rm -f $(BIN)
+
+test: build
+	./$(BIN)
+EOF
+
+    log_success "Created COBOL project structure"
+}
+setup_fortran() {
+    log_section "🔬 Fortran Setup"
+
+    mkdir -p src tests
+
+    # Main program
+    cat > src/main.f90 << 'EOF'
+program main
+    implicit none
+    
+    print *, "Hello from Fortran!"
+    
+end program main
+EOF
+
+    # Module example
+    cat > src/module_example.f90 << 'EOF'
+module example_module
+    implicit none
+    
+contains
+    
+    function add(a, b) result(c)
+        real, intent(in) :: a, b
+        real :: c
+        c = a + b
+    end function add
+    
+end module example_module
+EOF
+
+    # CMakeLists.txt
+    cat > CMakeLists.txt << EOF
+cmake_minimum_required(VERSION 3.20)
+project($PROJECT_NAME VERSION 0.1.0 LANGUAGES Fortran)
+
+enable_language(Fortran)
+
+add_executable(\${PROJECT_NAME}
+    src/main.f90
+    src/module_example.f90
+)
+
+# Tests
+enable_testing()
+add_subdirectory(tests)
+EOF
+
+    # Test
+    mkdir -p tests
+    cat > tests/test_module.f90 << 'EOF'
+program test_module
+    use example_module
+    implicit none
+    real :: result
+    
+    result = add(2.0, 2.0)
+    if (abs(result - 4.0) < 1e-6) then
+        print *, "Test passed!"
+    else
+        print *, "Test failed!"
+        stop 1
+    end if
+    
+end program test_module
+EOF
+
+    # Makefile
+    cat > Makefile << 'EOF'
+FC = gfortran
+FCFLAGS = -Wall -Wextra -pedantic -std=f2018
+
+SRC = $(wildcard src/*.f90)
+OBJ = $(SRC:.f90=.o)
+BIN = program
+
+.PHONY: all build clean
+
+all: build
+
+build: $(BIN)
+
+$(BIN): $(OBJ)
+	$(FC) $(FCFLAGS) -o $@ $^
+
+%.o: %.f90
+	$(FC) $(FCFLAGS) -c -o $@ $<
+
+clean:
+	rm -f $(OBJ) $(BIN)
+EOF
+
+    log_success "Created Fortran project structure"
+}
+setup_basic() {
+    log_section "📼 FreeBASIC Setup"
+
+    mkdir -p src
+
+    # Main BASIC program
+    cat > src/main.bas << 'EOF'
+' Hello World in FreeBASIC
+
+#include "fbgfx.bi"
+
+Print "Hello from BASIC!"
+Sleep
+EOF
+
+    # Makefile
+    cat > Makefile << 'EOF'
+FBC = fbc
+FBCFLAGS = -lang fb
+
+SRC = src/main.bas
+BIN = program
+
+.PHONY: all build clean
+
+all: build
+
+build: $(BIN)
+
+$(BIN): $(SRC)
+	$(FBC) $(FBCFLAGS) -x $@ $<
+
+clean:
+	rm -f $(BIN)
+EOF
+
+    log_success "Created FreeBASIC project structure"
+}
+setup_kotlin() {
+    log_section "🎯 Kotlin Setup"
+    log_warning "Kotlin setup coming soon! Using basic structure..."
+    mkdir -p src/main/kotlin
+    echo 'fun main() { println("Hello from Kotlin!") }' > src/main/kotlin/Main.kt
+}
+setup_csharp() {
+    log_section "🔷 C# Setup"
+    if command -v dotnet &> /dev/null; then
+        dotnet new console -n "$PROJECT_NAME" -o .
+        log_success "Created C# project with dotnet"
+    else
+        log_warning "dotnet CLI not found"
+    fi
+}
+setup_swift() {
+    log_section "🍎 Swift Setup"
+    if command -v swift &> /dev/null; then
+        swift package init --type executable
+        log_success "Created Swift package"
+    else
+        log_warning "Swift not found"
+    fi
+}
+setup_zig() {
+    log_section "⚡ Zig Setup"
+    if command -v zig &> /dev/null; then
+        zig init-exe
+        log_success "Created Zig project"
+    else
+        log_warning "Zig not found"
+    fi
+}
+setup_vlang() {
+    log_section "🔵 V Setup"
+    mkdir -p src
+    echo 'fn main() { println("Hello from V!") }' > src/main.v
+    log_success "Created V project structure"
+}
+setup_nim() {
+    log_section "👑 Nim Setup"
+    mkdir -p src
+    echo 'echo "Hello from Nim!"' > src/main.nim
+    log_success "Created Nim project structure"
+}
+setup_dart() {
+    log_section "🎯 Dart Setup"
+    if command -v dart &> /dev/null; then
+        dart create -t console .
+        log_success "Created Dart project"
+    else
+        log_warning "Dart not found"
+    fi
+}
+setup_ada() {
+    log_section "🏛️  Ada Setup"
+    mkdir -p src
+    cat > src/main.adb << 'EOF'
+with Ada.Text_IO; use Ada.Text_IO;
+
+procedure Main is
+begin
+   Put_Line("Hello from Ada!");
+end Main;
+EOF
+    log_success "Created Ada project structure"
+}
+setup_pascal() {
+    log_section "📐 Pascal Setup"
+    mkdir -p src
+    cat > src/main.pas << 'EOF'
+program Hello;
+begin
+  writeln('Hello from Pascal!');
+end.
+EOF
+    log_success "Created Pascal project structure"
+}
+setup_bash() {
+    log_section "🐚 Bash Setup"
+    mkdir -p src tests
+    cat > src/main.sh << 'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "Hello from Bash!"
+EOF
+    chmod +x src/main.sh
+    log_success "Created Bash project structure"
+}
+setup_perl() {
+    log_section "🐪 Perl Setup"
+    mkdir -p lib t
+    cat > script.pl << 'EOF'
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+print "Hello from Perl!\n";
+EOF
+    chmod +x script.pl
+    log_success "Created Perl project structure"
+}
+setup_lua() {
+    log_section "🌙 Lua Setup"
+    mkdir -p src
+    cat > src/main.lua << 'EOF'
+print("Hello from Lua!")
+EOF
+    log_success "Created Lua project structure"
+}
+setup_r() {
+    log_section "📊 R Setup"
+    mkdir -p R tests
+    cat > R/main.R << 'EOF'
+message("Hello from R!")
+EOF
+    log_success "Created R project structure"
+}
+setup_julia() {
+    log_section "🔢 Julia Setup"
+    mkdir -p src test
+    cat > src/main.jl << 'EOF'
+println("Hello from Julia!")
+EOF
+    log_success "Created Julia project structure"
+}
+
+# Node.js/TypeScript setup
+setup_node() {
+    log_section "Setting up Node.js/TypeScript project"
+
+    cat >> .gitignore << 'GITIGNORE'
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+dist/
+build/
+.env
+.env.local
+*.tsbuildinfo
+GITIGNORE
+
+    # package.json
+    cat > package.json << 'PACKAGE'
+{
+  "name": "project",
+  "version": "0.1.0",
+  "description": "Node.js/TypeScript project",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "jest",
+    "lint": "eslint src --ext .ts,.tsx",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "type-check": "tsc --noEmit",
+    "security": "npm audit && snyk test"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^6.13.0",
+    "@typescript-eslint/parser": "^6.13.0",
+    "eslint": "^8.54.0",
+    "eslint-plugin-security": "^1.7.1",
+    "jest": "^29.7.0",
+    "prettier": "^3.1.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.0"
+  },
+  "dependencies": {}
+}
+PACKAGE
+
+    # tsconfig.json
+    cat > tsconfig.json << 'TSCONFIG'
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+TSCONFIG
+
+    # .eslintrc.json
+    cat > .eslintrc.json << 'ESLINTRC'
+{
+  "extends": [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:security/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint", "security"],
+  "root": true,
+  "rules": {
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error"
+  }
+}
+ESLINTRC
+
+    # .prettierrc
+    cat > .prettierrc << 'PRETTIERRC'
+{
+  "semi": true,
+  "trailingComma": "es5",
+  "singleQuote": true,
+  "printWidth": 100,
+  "tabWidth": 2
+}
+PRETTIERRC
+
+    mkdir -p src tests
+
+    # src/index.ts
+    cat > src/index.ts << 'INDEXTS'
+console.log('Hello from TypeScript!');
+
+export function add(a: number, b: number): number {
+  return a + b;
+}
+INDEXTS
+
+    # tests/index.test.ts
+    cat > tests/index.test.ts << 'TESTTS'
+import { add } from '../src/index';
+
+describe('add function', () => {
+  it('should add two numbers', () => {
+    expect(add(2, 3)).toBe(5);
+  });
+});
+TESTTS
+
+    # Makefile
+    cat > Makefile << 'MAKEFILE'
+.PHONY: build test lint clean
+
+build:
+	npm run build
+
+test:
+	npm test
+
+lint:
+	npm run lint
+
+format:
+	npm run format
+
+type-check:
+	npm run type-check
+
+security:
+	npm audit
+	npm run lint
+
+clean:
+	rm -rf dist node_modules
+MAKEFILE
+
+    # CI/CD
+    mkdir -p .github/workflows
+    cat > .github/workflows/ci.yml << 'WORKFLOW'
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npm run type-check
+      - run: npm run lint
+      - run: npm test
+      - run: npm audit --audit-level=moderate
+WORKFLOW
+
+    log_success "Node.js/TypeScript project created"
+}
+
+# Go setup
+setup_go() {
+    log_section "Setting up Go project"
+
+    cat >> .gitignore << 'GITIGNORE'
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+/vendor/
+/bin/
+GITIGNORE
+
+    # go.mod
+    cat > go.mod << 'GOMOD'
+module example.com/project
+
+go 1.21
+GOMOD
+
+    # Create project structure
+    mkdir -p cmd/app pkg internal tests
+
+    # cmd/app/main.go
+    cat > cmd/app/main.go << 'MAINGO'
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	fmt.Println("Hello from Go!")
+}
+MAINGO
+
+    # pkg/example.go
+    cat > pkg/example.go << 'EXAMPLEGO'
+package pkg
+
+// Add returns the sum of two integers
+func Add(a, b int) int {
+	return a + b
+}
+EXAMPLEGO
+
+    # pkg/example_test.go
+    cat > pkg/example_test.go << 'TESTGO'
+package pkg
+
+import "testing"
+
+func TestAdd(t *testing.T) {
+	result := Add(2, 3)
+	if result != 5 {
+		t.Errorf("Add(2, 3) = %d; want 5", result)
+	}
+}
+TESTGO
+
+    # Makefile
+    cat > Makefile << 'MAKEFILE'
+.PHONY: build test lint security clean
+
+build:
+	go build -o bin/app ./cmd/app
+
+test:
+	go test ./...
+
+lint:
+	golangci-lint run ./...
+
+security:
+	gosec ./...
+	go list -json -m all | nancy sleuth
+
+clean:
+	rm -rf bin/
+
+run:
+	go run ./cmd/app
+MAKEFILE
+
+    # .golangci.yml
+    cat > .golangci.yml << 'GOLANGCI'
+linters:
+  enable:
+    - gosec
+    - govet
+    - staticcheck
+    - errcheck
+    - ineffassign
+    - unused
+    - misspell
+    - gofmt
+    - goimports
+GOLANGCI
+
+    # CI/CD
+    mkdir -p .github/workflows
+    cat > .github/workflows/ci.yml << 'WORKFLOW'
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+      - run: go mod download
+      - run: go test ./...
+      - run: go vet ./...
+      
+      - name: Run gosec
+        uses: securego/gosec@master
+        with:
+          args: './...'
+WORKFLOW
+
+    log_success "Go project created"
+}
+
+# Ruby setup
+setup_ruby() {
+    log_section "Setting up Ruby project"
+
+    cat >> .gitignore << 'GITIGNORE'
+
+# Ruby
+*.gem
+*.rbc
+/.config
+/coverage/
+/InstalledFiles
+/pkg/
+/spec/reports/
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+/tmp/
+.bundle/
+vendor/bundle
+GITIGNORE
+
+    # Gemfile
+    cat > Gemfile << 'GEMFILE'
+source 'https://rubygems.org'
+
+ruby '~> 3.2'
+
+group :development, :test do
+  gem 'rspec', '~> 3.12'
+  gem 'rubocop', '~> 1.57', require: false
+  gem 'rubocop-rspec', require: false
+  gem 'brakeman', require: false
+  gem 'bundler-audit', require: false
+end
+GEMFILE
+
+    # .rubocop.yml
+    cat > .rubocop.yml << 'RUBOCOP'
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.2
+
+Style/StringLiterals:
+  Enabled: true
+  EnforcedStyle: single_quotes
+
+Metrics/BlockLength:
+  Enabled: true
+  Max: 25
+  Exclude:
+    - 'spec/**/*'
+RUBOCOP
+
+    mkdir -p lib spec
+
+    # lib/example.rb
+    cat > lib/example.rb << 'EXAMPLERB'
+# Example module
+module Example
+  def self.add(a, b)
+    a + b
+  end
+end
+EXAMPLERB
+
+    # spec/example_spec.rb
+    cat > spec/example_spec.rb << 'SPECRB'
+require_relative '../lib/example'
+
+RSpec.describe Example do
+  describe '.add' do
+    it 'adds two numbers' do
+      expect(Example.add(2, 3)).to eq(5)
+    end
+  end
+end
+SPECRB
+
+    # spec/spec_helper.rb
+    cat > spec/spec_helper.rb << 'SPECHELPER'
+RSpec.configure do |config|
+  config.expect_with :rspec do |expectations|
+    expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+  end
+
+  config.mock_with :rspec do |mocks|
+    mocks.verify_partial_doubles = true
+  end
+
+  config.shared_context_metadata_behavior = :apply_to_host_groups
+end
+SPECHELPER
+
+    # Rakefile
+    cat > Rakefile << 'RAKEFILE'
+require 'rspec/core/rake_task'
+require 'rubocop/rake_task'
+
+RSpec::Core::RakeTask.new(:spec)
+RuboCop::RakeTask.new
+
+task default: [:spec, :rubocop]
+
+desc 'Run security checks'
+task :security do
+  sh 'brakeman --no-pager'
+  sh 'bundle audit check --update'
+end
+RAKEFILE
+
+    # CI/CD
+    mkdir -p .github/workflows
+    cat > .github/workflows/ci.yml << 'WORKFLOW'
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+      - run: bundle exec rspec
+      - run: bundle exec rubocop
+      - run: bundle exec brakeman --no-pager
+      - run: bundle exec bundle-audit check --update
+WORKFLOW
+
+    log_success "Ruby project created"
+}
+
+# PHP setup
+setup_php() {
+    log_section "Setting up PHP project"
+
+    cat >> .gitignore << 'GITIGNORE'
+
+# PHP
+/vendor/
+composer.lock
+.phpunit.result.cache
+GITIGNORE
+
+    # composer.json
+    cat > composer.json << 'COMPOSER'
+{
+    "name": "vendor/project",
+    "description": "PHP project",
+    "type": "project",
+    "require": {
+        "php": "^8.2"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^10.5",
+        "squizlabs/php_codesniffer": "^3.7",
+        "phpstan/phpstan": "^1.10",
+        "vimeo/psalm": "^5.18"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "phpcs src tests",
+        "lint:fix": "phpcbf src tests",
+        "analyze": "phpstan analyse src tests",
+        "psalm": "psalm"
+    }
+}
+COMPOSER
+
+    # phpunit.xml
+    cat > phpunit.xml << 'PHPUNIT'
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php"
+         colors="true"
+         verbose="true">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>
+PHPUNIT
+
+    # phpcs.xml
+    cat > phpcs.xml << 'PHPCS'
+<?xml version="1.0"?>
+<ruleset name="Project">
+    <description>PHP CodeSniffer configuration</description>
+    <file>src</file>
+    <file>tests</file>
+    <rule ref="PSR12"/>
+</ruleset>
+PHPCS
+
+    # phpstan.neon
+    cat > phpstan.neon << 'PHPSTAN'
+parameters:
+    level: 8
+    paths:
+        - src
+        - tests
+PHPSTAN
+
+    mkdir -p src tests
+
+    # src/Example.php
+    cat > src/Example.php << 'EXAMPLEPHP'
+<?php
+
+namespace App;
+
+class Example
+{
+    public function add(int $a, int $b): int
+    {
+        return $a + $b;
+    }
+}
+EXAMPLEPHP
+
+    # tests/ExampleTest.php
+    cat > tests/ExampleTest.php << 'TESTPHP'
+<?php
+
+namespace Tests;
+
+use App\Example;
+use PHPUnit\Framework\TestCase;
+
+class ExampleTest extends TestCase
+{
+    public function testAdd(): void
+    {
+        $example = new Example();
+        $this->assertEquals(5, $example->add(2, 3));
+    }
+}
+TESTPHP
+
+    # Makefile
+    cat > Makefile << 'MAKEFILE'
+.PHONY: install test lint analyze security clean
+
+install:
+	composer install
+
+test:
+	composer test
+
+lint:
+	composer lint
+
+analyze:
+	composer analyze
+	composer psalm
+
+security:
+	composer audit
+
+clean:
+	rm -rf vendor/
+MAKEFILE
+
+    # CI/CD
+    mkdir -p .github/workflows
+    cat > .github/workflows/ci.yml << 'WORKFLOW'
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer
+      - run: composer install
+      - run: composer test
+      - run: composer lint
+      - run: composer analyze
+      - run: composer audit
+WORKFLOW
+
+    log_success "PHP project created"
+}
+
