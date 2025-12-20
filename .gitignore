@@ -19,3 +19,7 @@ test-*/
 # Temporary files
 /tmp/
 *.tmp
+
+# Tooling defaults
+.env
+.env.*

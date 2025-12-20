@@ -4,7 +4,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Shell](https://img.shields.io/badge/Shell-Bash-green.svg)](https://www.gnu.org/software/bash/)
-[![Version](https://img.shields.io/badge/version-3.0.1-blue.svg)](https://github.com/krisarmstrong/project-bootstrap)
+[![Version](https://img.shields.io/badge/version-3.0.2-blue.svg)](https://github.com/krisarmstrong/project-bootstrap)
 
 ## Overview
 
