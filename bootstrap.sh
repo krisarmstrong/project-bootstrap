@@ -3,7 +3,7 @@
 # ╔══════════════════════════════════════════════════════════════════════╗
 # ║  Universal Project Bootstrap Tool - ENHANCED v3.0                    ║
 # ║  40+ Languages | Docker | K8s | Security | Observability | APIs     ║
-# ║  Version: 3.0.0                                                      ║
+# ║  Version: 3.0.1                                                      ║
 # ╚══════════════════════════════════════════════════════════════════════╝
 
 set -euo pipefail
@@ -2522,4 +2522,3 @@ WORKFLOW
 
     log_success "PHP project created"
 }
-

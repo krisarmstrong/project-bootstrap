@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.1] - 2025-12-20
+
+### Changed
+- Added EditorConfig defaults to keep formatting consistent across generated projects.
+
 ## [3.0.0] - 2025-01-18
 
 ### Added
@@ -166,7 +171,8 @@ This project follows [Semantic Versioning](https://semver.org/):
 - `feat!:` or `BREAKING CHANGE:` → MAJOR version bump
 - Other types (`docs:`, `chore:`, etc.) → No version bump
 
-[Unreleased]: https://github.com/krisarmstrong/project-bootstrap/compare/v3.0.0...HEAD
+[Unreleased]: https://github.com/krisarmstrong/project-bootstrap/compare/v3.0.1...HEAD
+[3.0.1]: https://github.com/krisarmstrong/project-bootstrap/compare/v3.0.0...v3.0.1
 [3.0.0]: https://github.com/krisarmstrong/project-bootstrap/compare/v2.0.0...v3.0.0
 [2.0.0]: https://github.com/krisarmstrong/project-bootstrap/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/krisarmstrong/project-bootstrap/releases/tag/v1.0.0

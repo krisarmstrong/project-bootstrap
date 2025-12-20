@@ -707,8 +707,7 @@ Each setup includes links to:
 
 ---
 
-**Version:** 3.0.0
+**Version:** 3.0.1
 **Date:** 2025-11-18
 **Status:** Enhanced with production-grade features
 **Next:** v4.0 with interactive mode & cloud provider templates
-
