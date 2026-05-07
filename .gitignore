@@ -1,25 +1,39 @@
-# OS
-.DS_Store
-Thumbs.db
-*.swp
-*.swo
+# ╔═══════════════════════════════════════════════════════════════════════════╗
+# ║ Project Bootstrap - .gitignore                                            ║
+# ╠═══════════════════════════════════════════════════════════════════════════╣
+# ║ Project initialization and scaffolding utility                            ║
+# ║ Stack: Shell scripts, templates                                          ║
+# ╚═══════════════════════════════════════════════════════════════════════════╝
 
-# IDEs
+# ─── Environment & Secrets ───────────────────────────────────────────────────
+.env
+.env.*
+
+# ─── Testing ─────────────────────────────────────────────────────────────────
+test-*/
+*.test
+test_projects/
+bootstrap_test_*/
+
+# ─── Temporary Files ─────────────────────────────────────────────────────────
+/tmp/
+*.tmp
+*.temp
+*~
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+bootstrap_*.log
+
+# ─── Generated Projects ──────────────────────────────────────────────────────
+# Projects created during testing
+generated/
+output/
+bootstrapped_*/
+
+# ─── IDE & Editors ───────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.sublime-*
-
-# Testing
-test-*/
-*.test
-
-# Logs
-*.log
-
-# Temporary files
-/tmp/
-*.tmp
-
-# Tooling defaults
-.env
-.env.*
+*.swp
+*.swo
