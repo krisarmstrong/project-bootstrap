@@ -9,7 +9,7 @@
 |----------|-----------------|--------|-----------|------------------|-----------|
 | **Go** | gosec | golangci-lint | gofmt/goimports | go mod verify | pre-commit |
 | **Python** | Bandit, Safety | Pylint, Ruff | Black, autopep8 | pip-audit, Safety | pre-commit |
-| **JavaScript/TypeScript** | ESLint+plugins | ESLint | Prettier | npm audit, Snyk | Husky |
+| **JavaScript/TypeScript** | Biome, Semgrep | Biome | Biome | npm audit, Snyk | Husky |
 | **Java** | SpotBugs, SonarQube | Checkstyle, PMD | Google Java Format | OWASP Dependency-Check | Maven/Gradle hooks |
 | **C#** | Security Code Scan | Roslyn, StyleCop | dotnet format | dotnet list package --vulnerable | Husky.Net |
 | **Ruby** | Brakeman | RuboCop | RuboCop | bundler-audit | Overcommit |
@@ -729,13 +729,8 @@ repos:
       - id: golangci-lint
 
   # JavaScript/TypeScript
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.52.0
-    hooks:
-      - id: eslint
-        additional_dependencies:
-          - eslint@8.52.0
-          - '@typescript-eslint/parser@6.9.0'
+  # Prefer Husky/lint-staged for Biome because Biome is distributed through npm.
+  # Example hook command: npx biome check --write .
 ```
 
 ---
@@ -744,9 +739,9 @@ repos:
 
 | Feature | Go | Python | JS/TS | Java | Rust | Ruby | PHP |
 |---------|----|----|-------|------|------|------|-----|
-| **Security Scanner** | gosec | Bandit | ESLint+plugins | SpotBugs | Clippy | Brakeman | Psalm |
+| **Security Scanner** | gosec | Bandit | Biome, Semgrep | SpotBugs | Clippy | Brakeman | Psalm |
 | **Dependency Check** | go mod | pip-audit | npm audit | OWASP DC | cargo audit | bundler-audit | Composer |
-| **Auto-fix** | ❌ | ✅ (Ruff) | ✅ (ESLint) | ⚠️ (Limited) | ❌ | ✅ (RuboCop) | ✅ (PHP-CS-Fixer) |
+| **Auto-fix** | ❌ | ✅ (Ruff) | ✅ (Biome) | ⚠️ (Limited) | ❌ | ✅ (RuboCop) | ✅ (PHP-CS-Fixer) |
 | **Type Safety** | ✅ Native | ✅ (mypy) | ✅ (TS) | ✅ Native | ✅ Native | ❌ | ⚠️ (Partial) |
 | **Speed** | ⚡ Fast | 🐌 Slow | 🚀 Medium | 🐌 Slow | ⚡ Fast | 🚀 Medium | 🚀 Medium |
 | **Git Hooks** | pre-commit | pre-commit | Husky | Maven | pre-commit | Overcommit | GrumPHP |
@@ -773,9 +768,9 @@ pip-audit
 
 ## JavaScript/TypeScript
 ```bash
-npm install -D eslint @typescript-eslint/parser prettier husky
+npm install -D @biomejs/biome husky
 npm install -g snyk
-npx eslint .
+npx biome check .
 npm audit
 ```
 
@@ -833,7 +828,7 @@ jobs:
 
       - name: Code security scan
         run: |
-          # bandit, gosec, eslint, etc.
+          # bandit, gosec, semgrep, etc.
 
       # Quality checks
       - name: Lint

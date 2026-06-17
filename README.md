@@ -44,9 +44,9 @@ chmod +x bootstrap.sh
 ## Supported Languages
 
 ### Modern Languages (11)
-- **Python** 3.11+ (pytest, black, ruff, bandit, mypy)
-- **Node.js/TypeScript** (ESLint, Prettier, Jest, npm audit)
-- **Go** 1.21+ (gosec, staticcheck, golangci-lint)
+- **Python** 3.14+ (pytest, Ruff, bandit, mypy)
+- **Node.js/TypeScript** (Biome, Vitest, Playwright, npm audit)
+- **Go** 1.26.4 (gosec, govulncheck, golangci-lint v2.12.2)
 - **Rust** 2021 (clippy, cargo-audit, rustfmt)
 - **Java** 17+ (Maven/Gradle, SpotBugs, PMD, Checkstyle)
 - **Kotlin** (ktlint, detekt)
@@ -66,8 +66,8 @@ chmod +x bootstrap.sh
 - **F#** (fantomas, FSharpLint)
 
 ### Systems Programming (7)
-- **C** (CMake, cppcheck, clang-tidy, AddressSanitizer)
-- **C++** (CMake, clang-format, GoogleTest, clang-tidy)
+- **C** C23 (CMake, clang-format, clang-tidy, cppcheck, AddressSanitizer)
+- **C++** C++23 (CMake, clang-format, GoogleTest, clang-tidy, cppcheck)
 - **Zig** (zig build, zig fmt)
 - **Nim** (nimble, nimpretty)
 - **V** (v fmt, v test)
@@ -90,7 +90,7 @@ chmod +x bootstrap.sh
 
 ### 🔒 Security-First
 
-- **SAST Tools**: Language-specific static analysis (gosec, Bandit, ESLint security plugins, etc.)
+- **SAST Tools**: Language-specific static analysis (gosec, Bandit, Biome, etc.)
 - **Dependency Scanning**: npm audit, pip-audit, cargo audit, bundler-audit
 - **Secret Detection**: detect-secrets, gitleaks, trufflehog
 - **SBOM Generation**: CycloneDX format with vulnerability scanning
@@ -157,7 +157,7 @@ chmod +x bootstrap.sh
 ./bootstrap.sh python user-service --docker --kubernetes --api --database
 ```
 Creates:
-- Python 3.11+ project with pytest, black, ruff, bandit
+- Python 3.14+ project with pytest, Ruff, bandit
 - Multi-stage Dockerfile
 - Kubernetes manifests with HPA
 - OpenAPI specification
@@ -168,7 +168,7 @@ Creates:
 ./bootstrap.sh go analytics-engine --docker --observability --database
 ```
 Creates:
-- Go 1.21+ project with gosec, staticcheck
+- Go 1.26.4 project with golangci-lint v2.12.2 and govulncheck
 - Optimized Docker build
 - Prometheus metrics endpoint
 - Structured logging (Zap)

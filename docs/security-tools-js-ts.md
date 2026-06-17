@@ -7,12 +7,11 @@
 
 | Tool | Language/Stack | What It Does | Best For |
 |------|---------------|--------------|----------|
-| **ESLint** | JavaScript/TypeScript | Code quality & security linting | Style, bugs, security patterns |
+| **Biome** | JavaScript/TypeScript | Code quality linting and formatting | Style, bugs, consistency |
 | **TypeScript** | TypeScript | Type safety & compile-time checks | Type errors, null safety |
 | **npm audit** | Node.js | Dependency vulnerability scanning | Known CVEs in packages |
 | **Snyk** | Multi-language | Dependency & code security | CVEs, license issues, IaC |
 | **SonarQube** | Multi-language | Code quality & security | Tech debt, vulnerabilities |
-| **Prettier** | JavaScript/TypeScript | Code formatting | Consistent style |
 | **Husky** | Any (git hooks) | Git hook management | Pre-commit/push automation |
 | **lint-staged** | Any | Run linters on staged files | Fast pre-commit checks |
 | **Semgrep** | Multi-language | Pattern-based security | Custom security rules |
@@ -21,47 +20,26 @@
 
 ## 🛠️ Essential Tools for React/TypeScript/Node.js
 
-### 1. ESLint (+ Security Plugins)
-**Purpose:** Catch bugs, enforce code style, detect security issues
+### 1. Biome
+**Purpose:** Catch bugs, enforce code style, and format JS/TS with one tool
 
 **Installation:**
 ```bash
-npm install --save-dev eslint @typescript-eslint/parser @typescript-eslint/eslint-plugin
-npm install --save-dev eslint-plugin-react eslint-plugin-react-hooks
-npm install --save-dev eslint-plugin-security eslint-plugin-no-secrets
+npm install --save-dev @biomejs/biome
 ```
 
-**Security Plugins:**
-- `eslint-plugin-security` - Detects security anti-patterns
-- `eslint-plugin-no-secrets` - Prevents committing secrets
-- `eslint-plugin-xss` - Detects XSS vulnerabilities
-- `eslint-plugin-no-unsanitized` - Prevents DOM XSS
-
-**Config (.eslintrc.json):**
+**Config (`biome.json`):**
 ```json
 {
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:react/recommended",
-    "plugin:react-hooks/recommended",
-    "plugin:security/recommended"
-  ],
-  "plugins": [
-    "@typescript-eslint",
-    "react",
-    "react-hooks",
-    "security",
-    "no-secrets"
-  ],
-  "rules": {
-    "no-eval": "error",
-    "no-implied-eval": "error",
-    "no-new-func": "error",
-    "security/detect-object-injection": "warn",
-    "security/detect-non-literal-regexp": "warn",
-    "security/detect-unsafe-regex": "error",
-    "no-secrets/no-secrets": "error"
+  "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+  "formatter": {
+    "enabled": true
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
   }
 }
 ```
@@ -69,8 +47,7 @@ npm install --save-dev eslint-plugin-security eslint-plugin-no-secrets
 **Run:**
 ```bash
 npm run lint
-# or
-npx eslint src/**/*.{ts,tsx}
+npm run fmt-check
 ```
 
 ---
@@ -204,24 +181,10 @@ rules:
 
 ---
 
-### 7. Prettier (Code Formatting)
-**Purpose:** Consistent code style
+### 7. Biome Formatting
+**Purpose:** Consistent code style without a separate formatter
 
-**Installation:**
-```bash
-npm install --save-dev prettier
-```
-
-**.prettierrc:**
-```json
-{
-  "semi": true,
-  "trailingComma": "es5",
-  "singleQuote": true,
-  "printWidth": 100,
-  "tabWidth": 2
-}
-```
+Biome owns both linting and formatting. Do not add Prettier to JS/TS projects.
 
 ---
 
@@ -240,15 +203,15 @@ npx husky init
 {
   "scripts": {
     "prepare": "husky install",
-    "lint": "eslint src/**/*.{ts,tsx}",
+    "lint": "biome check .",
     "type-check": "tsc --noEmit",
-    "format": "prettier --write src/**/*.{ts,tsx}",
+    "format": "biome check --write .",
+    "fmt-check": "biome format .",
     "security": "npm audit --audit-level=moderate && snyk test"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write"
+      "biome check --write --no-errors-on-unmatched"
     ]
   }
 }
@@ -335,14 +298,7 @@ chmod +x .git/hooks/pre-push
 ```bash
 # Core tools
 npm install --save-dev \
-  eslint \
-  @typescript-eslint/parser \
-  @typescript-eslint/eslint-plugin \
-  eslint-plugin-react \
-  eslint-plugin-react-hooks \
-  eslint-plugin-security \
-  eslint-plugin-no-secrets \
-  prettier \
+  @biomejs/biome \
   husky \
   lint-staged
 
@@ -355,20 +311,19 @@ pip install semgrep
 ```json
 {
   "scripts": {
-    "lint": "eslint src --ext .ts,.tsx",
-    "lint:fix": "eslint src --ext .ts,.tsx --fix",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
     "type-check": "tsc --noEmit",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\"",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
     "audit": "npm audit --audit-level=moderate",
     "security": "npm audit && snyk test",
-    "test": "jest",
+    "test": "vitest run",
     "prepare": "husky install"
   },
   "lint-staged": {
-    "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write",
+    "*.{ts,tsx,css,json}": [
+      "biome check --write --no-errors-on-unmatched",
       "bash -c 'tsc --noEmit'"
     ]
   }
@@ -397,9 +352,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6.4.0
         with:
-          node-version: '20'
+          node-version: '26.3.0'
 
       - name: Install dependencies
         run: npm ci
@@ -411,6 +366,9 @@ jobs:
         run: npm run lint
 
       - name: Security audit
+        run: npm audit --audit-level=moderate
+
+      - name: Dependency audit
         run: npm audit --audit-level=moderate
 
       - name: Snyk security scan
@@ -462,12 +420,12 @@ jobs:
 ## 🎯 Recommended Workflow
 
 ### During Development (IDE)
-- ESLint + Prettier integration
+- Biome integration
 - TypeScript errors in real-time
 
 ### On Save
-- Auto-fix ESLint errors
-- Auto-format with Prettier
+- Auto-fix Biome lint issues
+- Auto-format with Biome
 
 ### On Commit (pre-commit hook)
 - ✅ Lint staged files
@@ -487,16 +445,16 @@ jobs:
 
 ---
 
-## 📊 Comparison: gosec (Go) vs ESLint (JS/TS)
+## 📊 Comparison: gosec (Go) vs Biome (JS/TS)
 
-| Feature | gosec (Go) | ESLint (JS/TS) |
+| Feature | gosec (Go) | Biome (JS/TS) |
 |---------|-----------|----------------|
 | **Language** | Go only | JavaScript/TypeScript |
-| **Security Focus** | High (security-first) | Medium (quality + security) |
-| **Extensibility** | Limited | Very high (plugins) |
-| **Performance** | Fast | Moderate |
+| **Security Focus** | High (security-first) | Medium (quality + correctness) |
+| **Extensibility** | Limited | Limited by design |
+| **Performance** | Fast | Fast |
 | **Auto-fix** | No | Yes |
-| **Custom Rules** | No | Yes |
+| **Custom Rules** | No | No |
 | **CI Integration** | Easy | Easy |
 | **IDE Support** | Good | Excellent |
 
@@ -506,13 +464,13 @@ jobs:
 
 ### Minimal Setup (Start Here)
 ```bash
-npm install --save-dev eslint @typescript-eslint/parser prettier husky
+npm install --save-dev @biomejs/biome husky
 ```
 
 ### Standard Setup (Recommended)
 ```bash
-# Add security plugins
-npm install --save-dev eslint-plugin-security eslint-plugin-no-secrets
+# Add dependency and pattern scanning
+npm install --save-dev @biomejs/biome
 # Add git hooks
 npx husky init
 # Add Snyk
@@ -521,11 +479,11 @@ npm install -g snyk
 
 ### Enterprise Setup (Maximum Security)
 - All of the above
-- + SonarQube/SonarCloud
-- + Semgrep with custom rules
-- + GitHub Advanced Security (GHAS)
-- + Dependency-track for SBOM
-- + OWASP ZAP for runtime testing
+- SonarQube/SonarCloud
+- Semgrep with custom rules
+- GitHub Advanced Security (GHAS)
+- Dependency-track for SBOM
+- OWASP ZAP for runtime testing
 
 ---
 
@@ -570,7 +528,7 @@ npm test                  # Run all tests
 
 ## 🔗 Resources
 
-- **ESLint:** https://eslint.org/docs/latest/
+- **Biome:** https://biomejs.dev/
 - **TypeScript:** https://www.typescriptlang.org/tsconfig
 - **Snyk:** https://snyk.io/
 - **SonarCloud:** https://sonarcloud.io/
