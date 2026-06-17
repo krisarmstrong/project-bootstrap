@@ -140,7 +140,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 - gosec for Go
 - Bandit for Python
-- ESLint security plugins for JavaScript/TypeScript
+- Biome for JavaScript/TypeScript linting and formatting
 - cargo audit for Rust
 - SpotBugs for Java
 - And security tools for all other languages

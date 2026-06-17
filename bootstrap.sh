@@ -16,7 +16,7 @@ BLUE='\033[0;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-CHECK="✅"; CROSS="❌"; ROCKET="🚀"; LOCK="🔒"; WRENCH="🔧"; PACKAGE="📦"
+CHECK="✅"; CROSS="❌"; ROCKET="🚀"; PACKAGE="📦"
 
 log_info() { echo -e "${BLUE}ℹ${NC}  $1"; }
 log_success() { echo -e "${GREEN}${CHECK}${NC}  $1"; }
@@ -36,9 +36,9 @@ Usage: ./project-bootstrap-v3.sh <language> [project-name] [options]
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
  MODERN LANGUAGES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-  python         Python 3.11+ (pytest, black, ruff, bandit)
-  node           Node.js/TypeScript (ESLint, Prettier, Jest)
-  go             Go 1.21+ (gosec, staticcheck, golangci-lint)
+  python         Python 3.14+ (pytest, Ruff, bandit)
+  node           Node.js/TypeScript (Biome, TypeScript 7 native preview, Vitest)
+  go             Go 1.26.4 (gosec, govulncheck, golangci-lint v2.12.2)
   rust           Rust 2021 (clippy, cargo-audit, rustfmt)
   java           Java 17+ (Maven/Gradle, SpotBugs, PMD)
   kotlin         Kotlin JVM (ktlint, detekt)
@@ -63,7 +63,7 @@ Usage: ./project-bootstrap-v3.sh <language> [project-name] [options]
  SYSTEMS PROGRAMMING
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   c              C (CMake, cppcheck, clang-tidy, AddressSanitizer)
-  cpp            C++ (CMake, clang-format, GoogleTest)
+  cpp            C++23 (CMake, clang-format, clang-tidy, GoogleTest)
   zig            Zig (zig build, zig fmt)
   nim            Nim (nimble, nimpretty)
   v              V (v fmt, v test)
@@ -162,6 +162,13 @@ setup_git_with_semver() {
     log_section "Setting up Git with Semantic Versioning"
 
     git init -b main
+    git config core.hooksPath .git/hooks
+    if ! git config user.name >/dev/null; then
+        git config user.name "${GIT_AUTHOR_NAME:-Project Bootstrap}"
+    fi
+    if ! git config user.email >/dev/null; then
+        git config user.email "${GIT_AUTHOR_EMAIL:-bootstrap@example.invalid}"
+    fi
     log_success "Initialized git repository"
 
     # .gitignore (will be enhanced per language)
@@ -340,6 +347,7 @@ SOFTWARE.
 EOF
 
     # CODEOWNERS for PR review automation
+    mkdir -p .github
     cat > .github/CODEOWNERS << 'EOF'
 # Code ownership (auto-assigns reviewers)
 * @owner-username
@@ -408,7 +416,7 @@ EOF
         go)
             cat > Dockerfile << 'EOF'
 # Build stage
-FROM golang:1.21-alpine AS builder
+FROM golang:1.26.4-alpine AS builder
 
 WORKDIR /build
 COPY . .
@@ -979,22 +987,22 @@ jobs:
   generate-sbom:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
 
       - name: Generate SBOM (CycloneDX)
-        uses: anchore/sbom-action@v0
+        uses: anchore/sbom-action@e22c389904149dbc22b58101806040fa8d37a610 # v0.24.0
         with:
           format: cyclonedx-json
           output-file: sbom.cdx.json
 
       - name: Upload SBOM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: sbom
           path: sbom.cdx.json
 
       - name: Scan SBOM for vulnerabilities
-        uses: anchore/scan-action@v3
+        uses: anchore/scan-action@e1165082ffb1fe366ebaf02d8526e7c4989ea9d2 # v7.4.0
         with:
           sbom: sbom.cdx.json
           fail-build: true
@@ -1014,7 +1022,7 @@ setup_devcontainer() {
             cat > .devcontainer/devcontainer.json << 'EOF'
 {
   "name": "Python Development",
-  "image": "mcr.microsoft.com/devcontainers/python:3.11",
+  "image": "mcr.microsoft.com/devcontainers/python:3.14",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
@@ -1023,14 +1031,19 @@ setup_devcontainer() {
     "vscode": {
       "extensions": [
         "ms-python.python",
-        "ms-python.black-formatter",
         "charliermarsh.ruff",
         "eamodio.gitlens"
       ],
       "settings": {
-        "python.linting.enabled": true,
-        "python.formatting.provider": "black",
-        "editor.formatOnSave": true
+        "editor.formatOnSave": true,
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.fixAll.ruff": "explicit",
+            "source.organizeImports.ruff": "explicit"
+          }
+        }
       }
     }
   },
@@ -1042,7 +1055,7 @@ EOF
             cat > .devcontainer/devcontainer.json << 'EOF'
 {
   "name": "Go Development",
-  "image": "mcr.microsoft.com/devcontainers/go:1.21",
+  "image": "mcr.microsoft.com/devcontainers/go:1.26",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {}
   },
@@ -1097,28 +1110,33 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "project"
 version = "0.1.0"
-requires-python = ">=3.11"
+requires-python = ">=3.14"
 dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "black>=23.7.0",
-    "ruff>=0.0.285",
-    "bandit[toml]>=1.7.5",
-    "safety>=2.3.5",
-    "mypy>=1.5.0",
+    "pytest==9.1.0",
+    "pytest-cov==7.1.0",
+    "ruff==0.15.17",
+    "bandit[toml]==1.9.4",
+    "safety==3.8.1",
+    "pip-audit==2.10.1",
+    "mypy==2.1.0",
 ]
-
-[tool.black]
-line-length = 100
-target-version = ['py311']
 
 [tool.ruff]
 line-length = 100
+target-version = "py314"
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "B", "S"]
 ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+docstring-code-format = true
 
 [tool.bandit]
 exclude_dirs = ["tests", "venv"]
@@ -1131,7 +1149,7 @@ python_functions = "test_*"
 addopts = "--cov=src --cov-report=html --cov-report=term-missing"
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.14"
 strict = true
 warn_return_any = true
 warn_unused_configs = true
@@ -1146,7 +1164,6 @@ EOF
 
     cat > tests/test_main.py << 'EOF'
 """Test suite."""
-import pytest
 
 def test_example():
     assert True
@@ -1160,12 +1177,13 @@ test:
 	pytest
 
 lint:
+	ruff format --check src tests
 	ruff check src tests
 	mypy src
 
 format:
-	black src tests
-	ruff --fix src tests
+	ruff format src tests
+	ruff check --fix src tests
 
 security:
 	bandit -r src
@@ -1305,9 +1323,7 @@ EOF
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
     "hardhat": "^2.19.0",
-    "solhint": "^4.0.0",
-    "prettier": "^3.0.0",
-    "prettier-plugin-solidity": "^1.2.0"
+    "solhint": "^4.0.0"
   },
   "scripts": {
     "compile": "hardhat compile",
@@ -1498,12 +1514,13 @@ setup_java() {
     log_section "☕ Java Setup"
 
     # Detect build tool preference
-    local BUILD_TOOL="maven"
     if command -v gradle &> /dev/null; then
-        BUILD_TOOL="gradle"
+        log_info "Gradle detected; generated layout is compatible with Gradle or Maven."
+    else
+        log_info "Gradle not found; generated layout is compatible with Maven."
     fi
 
-    mkdir -p src/{main,test}/java/com/example/${PROJECT_NAME//-/_}
+    mkdir -p src/{main,test}/java/com/example/"${PROJECT_NAME//-/_}"
     mkdir -p src/main/resources
 
     # Main class
@@ -1952,23 +1969,19 @@ GITIGNORE
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
-    "test": "jest",
-    "lint": "eslint src --ext .ts,.tsx",
-    "lint:fix": "eslint src --ext .ts,.tsx --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "test": "vitest run",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
     "type-check": "tsc --noEmit",
-    "security": "npm audit && snyk test"
+    "security": "npm audit"
   },
   "devDependencies": {
-    "@types/node": "^20.10.0",
-    "@typescript-eslint/eslint-plugin": "^6.13.0",
-    "@typescript-eslint/parser": "^6.13.0",
-    "eslint": "^8.54.0",
-    "eslint-plugin-security": "^1.7.1",
-    "jest": "^29.7.0",
-    "prettier": "^3.1.0",
-    "tsx": "^4.7.0",
-    "typescript": "^5.3.0"
+    "@biomejs/biome": "2.5.0",
+    "@types/node": "25.9.3",
+    "tsx": "4.22.4",
+    "typescript": "npm:@typescript/native-preview@7.0.0-dev.20260615.1",
+    "vitest": "4.1.7"
   },
   "dependencies": {}
 }
@@ -2001,42 +2014,42 @@ PACKAGE
 }
 TSCONFIG
 
-    # .eslintrc.json
-    cat > .eslintrc.json << 'ESLINTRC'
+    # biome.json
+    cat > biome.json << 'BIOME'
 {
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:security/recommended"
-  ],
-  "parser": "@typescript-eslint/parser",
-  "plugins": ["@typescript-eslint", "security"],
-  "root": true,
-  "rules": {
-    "no-eval": "error",
-    "no-implied-eval": "error",
-    "no-new-func": "error"
+  "$schema": "https://biomejs.dev/schemas/2.5.0/schema.json",
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "suspicious": {
+        "noExplicitAny": "error"
+      }
+    }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "semicolons": "always",
+      "trailingCommas": "es5"
+    }
+  },
+  "files": {
+    "includes": ["src/**/*.ts", "tests/**/*.ts", "package.json", "tsconfig.json", "!dist", "!coverage", "!node_modules"]
   }
 }
-ESLINTRC
-
-    # .prettierrc
-    cat > .prettierrc << 'PRETTIERRC'
-{
-  "semi": true,
-  "trailingComma": "es5",
-  "singleQuote": true,
-  "printWidth": 100,
-  "tabWidth": 2
-}
-PRETTIERRC
+BIOME
 
     mkdir -p src tests
 
     # src/index.ts
     cat > src/index.ts << 'INDEXTS'
-console.log('Hello from TypeScript!');
-
 export function add(a: number, b: number): number {
   return a + b;
 }
@@ -2044,6 +2057,8 @@ INDEXTS
 
     # tests/index.test.ts
     cat > tests/index.test.ts << 'TESTTS'
+import { describe, expect, it } from 'vitest';
+
 import { add } from '../src/index';
 
 describe('add function', () => {
@@ -2091,10 +2106,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: '20'
+          node-version: '26.3.0'
       - run: npm ci
       - run: npm run type-check
       - run: npm run lint
@@ -2127,7 +2142,7 @@ GITIGNORE
     cat > go.mod << 'GOMOD'
 module example.com/project
 
-go 1.21
+go 1.26.4
 GOMOD
 
     # Create project structure
@@ -2185,7 +2200,7 @@ lint:
 
 security:
 	gosec ./...
-	go list -json -m all | nancy sleuth
+	govulncheck ./...
 
 clean:
 	rm -rf bin/
@@ -2220,18 +2235,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
-          go-version: '1.21'
+          go-version: '1.26.4'
       - run: go mod download
+      - run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.12.2
+      - run: go install golang.org/x/vuln/cmd/govulncheck@latest
       - run: go test ./...
-      - run: go vet ./...
-      
-      - name: Run gosec
-        uses: securego/gosec@master
-        with:
-          args: './...'
+      - run: golangci-lint run ./...
+      - run: govulncheck ./...
 WORKFLOW
 
     log_success "Go project created"
@@ -2359,8 +2372,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: ruby/setup-ruby@v1
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: ruby/setup-ruby@89f90524b88a01fe6e0b732220432cc6142926af # v1.313.0
         with:
           ruby-version: '3.2'
           bundler-cache: true
@@ -2525,8 +2538,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: shivammathur/setup-php@v2
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+      - uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # 2.37.2
         with:
           php-version: '8.2'
           tools: composer
