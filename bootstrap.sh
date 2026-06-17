@@ -217,9 +217,6 @@ fi
 EOF
     chmod +x .git/hooks/commit-msg
 
-    # Initial version tag
-    git tag v0.1.0
-
     log_success "Git configured with semantic versioning"
 }
 
@@ -1465,6 +1462,9 @@ main() {
 - Security tooling configured
 - Documentation templates created"
 
+    # Initial version tag — created after the first commit so HEAD resolves
+    git tag v0.1.0
+
     log_section "${CHECK} Project bootstrapped successfully!"
     log_success "Project: $PROJECT_NAME"
     log_success "Location: $(pwd)"
@@ -1475,7 +1475,6 @@ main() {
     echo "  # Start developing!"
 }
 
-main "$@"
 setup_rust() {
     log_section "🦀 Rust Setup"
 
@@ -2540,3 +2539,5 @@ WORKFLOW
 
     log_success "PHP project created"
 }
+
+main "$@"
