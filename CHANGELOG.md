@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0](https://github.com/krisarmstrong/project-bootstrap/compare/v3.0.0...v3.1.0) (2026-06-17)
+
+
+### Features
+
+* add 29 fully implemented languages with complete tooling ([649a116](https://github.com/krisarmstrong/project-bootstrap/commit/649a116a9b50c4f30f39279b5506c74b9f21f88d))
+
+
+### Bug Fixes
+
+* **bootstrap:** close unterminated heredoc corrupting language generators ([#1](https://github.com/krisarmstrong/project-bootstrap/issues/1)) ([3db1166](https://github.com/krisarmstrong/project-bootstrap/commit/3db1166fc0b0ab20153bc3c1a12b6bd0cb169a28))
+
 ## [Unreleased]
 
 ## [3.0.1] - 2025-12-20
