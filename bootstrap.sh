@@ -1485,10 +1485,16 @@ setup_rust() {
     else
         log_warning "cargo not found, creating manual structure"
         mkdir -p src
-        cat > src/main.rs << 'EOF'
+        cat > src/main.rs << 'RUST_EOF'
 fn main() {
     println!("Hello from Rust!");
 }
+RUST_EOF
+        log_success "Created src/main.rs"
+    fi
+    log_success "Created Rust project structure"
+}
+
 setup_java() {
     log_section "☕ Java Setup"
 
@@ -1502,7 +1508,7 @@ setup_java() {
     mkdir -p src/main/resources
 
     # Main class
-    cat > "src/main/java/com/example/${PROJECT_NAME//-/_}/Main.java" << 'EOF'
+    cat > "src/main/java/com/example/${PROJECT_NAME//-/_}/Main.java" << 'JAVA_EOF'
 package com.example.PROJECT_NAME;
 
 public class Main {
@@ -1510,13 +1516,17 @@ public class Main {
         System.out.println("Hello from Java!");
     }
 }
+JAVA_EOF
+    log_success "Created Java project structure"
+}
+
 setup_c() {
     log_section "⚡ C Setup"
 
     mkdir -p src include tests build
 
     # Main source
-    cat > src/main.c << 'EOF'
+    cat > src/main.c << 'C_EOF'
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -1524,13 +1534,17 @@ int main(int argc, char *argv[]) {
     printf("Hello from C!\n");
     return EXIT_SUCCESS;
 }
+C_EOF
+    log_success "Created C project structure"
+}
+
 setup_cpp() {
     log_section "⚡ C++ Setup"
 
     mkdir -p src include tests build
 
     # Main source
-    cat > src/main.cpp << 'EOF'
+    cat > src/main.cpp << 'CPP_EOF'
 #include <iostream>
 #include <memory>
 
@@ -1538,6 +1552,10 @@ int main(int argc, char* argv[]) {
     std::cout << "Hello from C++!" << std::endl;
     return 0;
 }
+CPP_EOF
+    log_success "Created C++ project structure"
+}
+
 setup_assembly() {
     log_section "⚙️  Assembly Setup"
 
